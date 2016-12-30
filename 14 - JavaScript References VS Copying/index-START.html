@@ -7,45 +7,100 @@
 <body>
 
   <script>
+    function group(name, f) {
+      console.group(name);
+      f();
+      console.groupEnd(name);
+    }
+
+    function assertArraySameness(a1, a2, shouldMatch) {
+      const val = a1[0];
+      a1[0] = 'hope this isnt a match';
+      const isSame = a1[0] == a2[0];
+      a1[0] = val;
+
+      if ((isSame && shouldMatch) || (!isSame && !shouldMatch)) {
+        console.log('Sameness is correct.');
+      } else {
+        console.error('Sameness is incorrect! Expected: %s', shouldMatch);
+      }
+    }
+
     // start with strings, numbers and booleans
+    group('Number Tests', () => {
+      let age = 10;
+      let age2 = age;
+      console.log(age, age2);
+
+      age = 20;
+      console.log(age, age2);
+    });
+
+    group('String Tests', () => {
+      let name = 'bri';
+      let name2 = name;
+      console.log(name, name2);
+
+      name = 'brian';
+      console.log(name, name2);
+    });
 
     // Let's say we have an array
     const players = ['Wes', 'Sarah', 'Ryan', 'Poppy'];
+    let team = players;
 
-    // and we want to make a copy of it.
 
-    // You might think we can just do something like this:
+    group('Arrays are passed by reference', () => {
+      assertArraySameness(team, players, true);
+    });
 
-    // however what happens when we update that array?
+    group('Copy the array to modify it', () => {
+      const team2 = team.slice();
+      assertArraySameness(team, team2, false);
+    });
 
-    // now here is the problem!
+    group('Spread to copy', () => {
+      const team3 = [...team];
+      assertArraySameness(team, team3, false);
+    });
 
-    // oh no - we have edited the original array too!
+    group('Array class to copy', () => {
+      const team4 = Array.from(team);
+      assertArraySameness(team, team4, false);
+    });
 
-    // Why? It's because that is an array reference, not an array copy. They both point to the same array!
-
-    // So, how do we fix this? We take a copy instead!
-
-    // one day
-
-    // or create a new array and concat the old one in
-
-    // or use the new ES6 Spread
-
-    // now when we update it, the original one isn't changed
 
     // The same thing goes for objects, let's say we have a person object
 
-    // with Objects
 
-    // and think we make a copy:
 
-    // how do we take a copy instead?
+    const person = {
+      name: 'wes',
+      age: 80
+    }
 
-    // We will hopefully soon see the object ...spread
+    group('A reference of that object', () => {
+      const person2 = person;
+      person2['test'] = 10;
+      console.log('Testing that person 1 got it: %s', person['test'] !== null);
+      person['test'] = null;
+    });
 
-    // Things to note - this is only 1 level deep - both for Arrays and Objects. lodash has a cloneDeep method, but you should think twice before using it.
+    group('A copy of that object', () => {
+      const person2 = Object.assign({}, person, { test: 10 });
+      console.log('Testing that person 1 got it: %s', person['test'] !== null);
 
+    });
+
+    group('With deeply nested objects', () => {
+      const obj = { a: [1, 2, 3] };
+
+      const obj2 = Object.assign({}, obj);
+      assertArraySameness(obj.a, obj2.a, true);
+
+      const obj3 = JSON.parse(JSON.stringify(obj));
+      assertArraySameness(obj.a, obj3.a, false);
+    });
   </script>
 
 </body>
