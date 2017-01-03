@@ -182,6 +182,25 @@
     </li>
 
 <script>
+  const itemList = document.querySelectorAll('li');
+  const items = [...itemList];
+  const regex = /(\d{1,2}):(\d{1,2})/;
+
+  function divideWithRemainder(a, b) {
+    return [Math.floor(a / b), a % b];
+  }
+
+  function formatTime(seconds) {
+    let [hours, secondsRemaining] = divideWithRemainder(seconds, 3600);
+    let [minutes, finalSeconds] = divideWithRemainder(secondsRemaining, 60);
+    return `${hours}:${minutes}:${finalSeconds}`;
+  }
+
+  const total = items
+    .map(item => item.dataset.time.match(regex))
+    .reduce((acc, [_, m, s]) => acc + parseInt(m) * 60 + parseInt(s), 0);
+
+  console.log(formatTime(total));
 </script>
 </body>
 </html>
